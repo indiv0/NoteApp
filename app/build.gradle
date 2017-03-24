@@ -32,5 +32,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'net.danlew:android.joda:2.9.7'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }
