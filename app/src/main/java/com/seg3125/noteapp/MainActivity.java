@@ -154,6 +154,12 @@ public class MainActivity extends AppCompatActivity {
             return data.select(NoteEntity.class).orderBy(NoteEntity.TITLE.lower()).get();
         }
 
+        /**
+         * Replaces the contents of a view (invoked by the layout manager).
+         * @param item the new item to be placed into the view.
+         * @param holder the holder of the binding for the view.
+         * @param position the position of the item in the `RecyclerView`.
+         */
         @Override
         public void onBindViewHolder(NoteEntity item, BindingHolder<NoteItemBinding> holder,
                                      int position) {
