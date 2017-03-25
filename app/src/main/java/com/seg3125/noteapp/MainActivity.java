@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
         // Load the root view used by the activity.
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
+        // This is an optimization to improve permission, as we know that the changes in content do
+        // not change the layout size of the recycler view.
+        recyclerView.setHasFixedSize(true);
+
         // Load the data store instance from the global `Application` context.
         data = ((NoteApplication) getApplication()).getData();
 
