@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
+        // Retrieves a count of the notes available, and if no notes are available, `CreateNotes` is
+        // used to create a set of default example notes.
+        // TODO: this should only be done the first time the app is launched.
         data.count(Note.class).get().single()
                 .subscribe(new Consumer<Integer>() {
                     @Override
