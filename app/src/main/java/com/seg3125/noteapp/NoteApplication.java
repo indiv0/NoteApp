@@ -16,7 +16,7 @@ import io.requery.sql.TableCreationMode;
 public class NoteApplication extends Application {
 
     // The current version of the database schema.
-    private static final int DATABASE_SCHEMA_VERSION = 3;
+    private static final int DATABASE_SCHEMA_VERSION = 4;
 
     // The data store, which holds all entities used by this application.
     private ReactiveEntityStore<Persistable> dataStore;

@@ -7,4 +7,9 @@
         android:icon="@drawable/ic_add_black_24dp"
         android:title="@string/action_add_note"
         app:showAsAction="ifRoom" />
+    <!-- "View Tags" -->
+    <item
+        android:id="@+id/action_view_tags"
+        android:title="@string/action_view_tags"
+        app:showAsAction="never" />
 </menu>

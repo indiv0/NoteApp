@@ -1,10 +1,6 @@
 package com.seg3125.noteapp;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -18,7 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.seg3125.noteapp.databinding.NoteItemBinding;
+import com.seg3125.noteapp.databinding.TagItemBinding;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,22 +34,23 @@ import io.requery.reactivex.ReactiveEntityStore;
  * Utilizes a {@link RecyclerView}, {@link QueryRecyclerAdapter}, and RxJava to display the data in
  * non-blocking, bound manner.
  */
-public class MainActivity extends AppCompatActivity {
+public class TagActivity extends AppCompatActivity {
 
     private ReactiveEntityStore<Persistable> data;
     private ExecutorService executor;
-    private NoteAdapter adapter;
+    private TagAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Enable permissions for writing
-        isStoragePermissionGranted();
+        setContentView(R.layout.activity_tag);
 
         // Load the root view used by the activity.
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.tagRecyclerView);
+
+        // This is an optimization to improve performance, as we know that the changes in content do
+        // not change the layout size of the recycler view.
+        recyclerView.setHasFixedSize(true);
 
         // Load the data store instance from the global `Application` context.
         data = ((NoteApplication) getApplication()).getData();
@@ -61,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         // Create a new concurrent executor, which is necessary for RxJava's async callback support.
         executor = Executors.newSingleThreadExecutor();
 
-        // Initialize a new Note adapter and attach it to the executor.
-        adapter = new NoteAdapter();
+        // Initialize a new `Tag` adapter and attach it to the executor.
+        adapter = new TagAdapter();
         adapter.setExecutor(executor);
 
         // Attach the adapter to the recycler view, and configure the layout manager for the view.
@@ -77,18 +74,18 @@ public class MainActivity extends AppCompatActivity {
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        // Retrieves a count of the notes available, and if no notes are available, `CreateNotes` is
-        // used to create a set of default example notes.
+        // Retrieves a count of the tags available, and if no tags are available, `CreateTags` is
+        // used to create a set of default example tags.
         // TODO: this should only be done the first time the app is launched.
-        data.count(Note.class).get().single()
+        data.count(Tag.class).get().single()
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(@NonNull Integer integer) {
                         if (integer == 0) {
-                            Observable.fromCallable(new CreateNotes(data))
-                                    .flatMap(new Function<Observable<Iterable<Note>>, Observable<?>>() {
+                            Observable.fromCallable(new CreateTags(data))
+                                    .flatMap(new Function<Observable<Iterable<Tag>>, Observable<?>>() {
                                         @Override
-                                        public Observable<?> apply(Observable<Iterable<Note>> o) {
+                                        public Observable<?> apply(Observable<Iterable<Tag>> o) {
                                             return o;
                                         }
                                     })
@@ -108,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu, creating the necessary actions.
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_main_menu, menu);
+        inflater.inflate(R.menu.activity_tag_menu, menu);
 
         return true;
     }
@@ -116,13 +113,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // Action with ID `action_add_note` was selected
-            case R.id.action_add_note:
-                addNote();
-                return true;
-            // The "view tags" button was pressed.
-            case R.id.action_view_tags:
-                viewTags();
+            // Back arrow was selected
+            case android.R.id.home:
+                finish();
+                break;
+            // Action with ID `action_add_tag` was selected
+            case R.id.action_add_tag:
+                addTag();
                 return true;
             default:
                 break;
@@ -132,19 +129,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when the user taps the "Add Note" button
+     * Called when the user taps the "Add Tag" button
      */
-    public void addNote() {
-        Intent intent = new Intent(this, EditNoteActivity.class);
+    public void addTag() {
+        // FIXME: uncomment this once `EditTagActivity` is implemented.
+        /*
+        Intent intent = new Intent(this, EditTagActivity.class);
         startActivity(intent);
-    }
-
-    /**
-     * Called when the user taps the "Tags" button
-     */
-    public void viewTags() {
-        Intent intent = new Intent(this, TagActivity.class);
-        startActivity(intent);
+        */
     }
 
     @Override
@@ -161,41 +153,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Adapter used to display {@link Note} items from a {@link ReactiveEntityStore} query.
+     * Adapter used to display {@link Tag} items from a {@link ReactiveEntityStore} query.
      */
-    private class NoteAdapter extends QueryRecyclerAdapter<NoteEntity,
-            BindingHolder<NoteItemBinding>> implements View.OnClickListener {
+    private class TagAdapter extends QueryRecyclerAdapter<TagEntity,
+            BindingHolder<TagItemBinding>> implements View.OnClickListener {
 
-        private static final String LOGGING_TAG = "NoteAdapter";
+        private static final String LOGGING_TAG = "TagAdapter";
 
-        NoteAdapter() {
-            super(NoteEntity.$TYPE);
+        TagAdapter() {
+            super(TagEntity.$TYPE);
         }
 
         @Override
-        public Result<NoteEntity> performQuery() {
-            // This is every note in the database, sorted by their title.
+        public Result<TagEntity> performQuery() {
+            // This is every tag in the database, sorted by their name.
             // NOTE: this method is executed in a background thread. This could instead be done via
             // RxJava with RxBinding.
             // FIXME: change this to use RxJava + RxBinding instead.
-            return data.select(NoteEntity.class).orderBy(NoteEntity.TITLE.lower()).get();
+            return data.select(TagEntity.class).orderBy(TagEntity.NAME.lower()).get();
         }
 
+        /**
+         * Replaces the contents of a view (invoked by the layout manager).
+         * @param item the new item to be placed into the view.
+         * @param holder the holder of the binding for the view.
+         * @param position the position of the item in the `RecyclerView`.
+         */
         @Override
-        public void onBindViewHolder(NoteEntity item, BindingHolder<NoteItemBinding> holder,
+        public void onBindViewHolder(TagEntity item, BindingHolder<TagItemBinding> holder,
                                      int position) {
-            Log.v(LOGGING_TAG, "Binding note item to view holder");
-            holder.binding.setNote(item);
+            Log.v(LOGGING_TAG, "Binding tag item to view holder");
+            holder.binding.setTag(item);
 
             // TODO: determine if this is necessary.
             //holder.binding.executePendingBindings();
         }
 
         @Override
-        public BindingHolder<NoteItemBinding> onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.v(LOGGING_TAG, "Creating a note view holder");
+        public BindingHolder<TagItemBinding> onCreateViewHolder(ViewGroup parent, int viewType) {
+            Log.v(LOGGING_TAG, "Creating a tag view holder");
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            NoteItemBinding binding = NoteItemBinding.inflate(inflater);
+            TagItemBinding binding = TagItemBinding.inflate(inflater);
             binding.getRoot().setTag(binding);
             binding.getRoot().setOnClickListener(this);
             return new BindingHolder<>(binding);
@@ -203,30 +201,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Log.d(LOGGING_TAG, "Handling note view handler click");
-            NoteItemBinding binding = (NoteItemBinding) v.getTag();
+            Log.d(LOGGING_TAG, "Handling tag view handler click");
+            // FIXME: uncomment this once `EditTagActivity is implemented.
+            /*
+            TagItemBinding binding = (TagItemBinding) v.getTag();
             if (binding != null) {
-                Intent intent = new Intent(MainActivity.this, EditNoteActivity.class);
-                intent.putExtra(EditNoteActivity.EXTRA_NOTE_ID, binding.getNote().getId());
+                Intent intent = new Intent(TagActivity.this, EditTagActivity.class);
+                intent.putExtra(EditTagActivity.EXTRA_TAG_ID, binding.getTag().getId());
                 startActivity(intent);
             }
-        }
-    }
-
-    // Used for bluetooth sharing
-    public  boolean isStoragePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            } else {
-
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
-            }
-        }
-        else { //permission is automatically granted on sdk<23 upon installation
-            return true;
+            */
         }
     }
 }
