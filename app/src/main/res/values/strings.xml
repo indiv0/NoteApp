@@ -5,4 +5,5 @@
     <string name="edit_note_content_hint">Type here</string>
     <string name="action_save_note">Save Note</string>
     <string name="action_view_tags">Tags</string>
+    <string name="action_add_tag">Add Tag</string>
 </resources>
