@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Adapter used to display {@link Note} items from an {@link ReactiveEntityStore} query.
+     * Adapter used to display {@link Note} items from a {@link ReactiveEntityStore} query.
      */
     private class NoteAdapter extends QueryRecyclerAdapter<NoteEntity,
             BindingHolder<NoteItemBinding>> implements View.OnClickListener {
