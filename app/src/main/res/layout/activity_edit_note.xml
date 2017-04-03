@@ -7,10 +7,12 @@
             name="note"
             type="com.seg3125.noteapp.Note" />
     </data>
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.seg3125.noteapp.EditNoteActivity">
+
         <EditText
             android:id="@+id/titleEditText"
             android:layout_width="0dp"
@@ -27,21 +29,20 @@
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp" />
+
         <EditText
             android:id="@+id/contentEditText"
             android:layout_width="0dp"
             android:layout_height="429dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginTop="0dp"
+            android:layout_marginBottom="8dp"
             android:ems="10"
+            android:gravity="top"
             android:hint="@string/edit_note_content_hint"
             android:inputType="textMultiLine"
             android:text="@{note.content}"
-            app:layout_constraintRight_toRightOf="@+id/titleEditText"
-            app:layout_constraintTop_toBottomOf="@+id/titleEditText"
-            android:layout_marginLeft="0dp"
-            app:layout_constraintLeft_toLeftOf="@+id/titleEditText"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="8dp" />
+            app:layout_constraintLeft_toLeftOf="@+id/titleEditText"
+            app:layout_constraintRight_toRightOf="@+id/titleEditText"
+            app:layout_constraintTop_toBottomOf="@+id/titleEditText" />
     </android.support.constraint.ConstraintLayout>
 </layout>
