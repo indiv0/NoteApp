@@ -1,6 +1,10 @@
 package com.seg3125.noteapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Enable permissions for writing
+        isStoragePermissionGranted();
 
         // Load the root view used by the activity.
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -179,6 +186,23 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(EditNoteActivity.EXTRA_NOTE_ID, binding.getNote().getId());
                 startActivity(intent);
             }
+        }
+    }
+
+    // Used for bluetooth sharing
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            return true;
         }
     }
 }
