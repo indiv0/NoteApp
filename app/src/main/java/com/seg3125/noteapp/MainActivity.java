@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     private class NoteAdapter extends QueryRecyclerAdapter<NoteEntity,
             BindingHolder<NoteItemBinding>> implements View.OnClickListener {
 
-        private static final String TAG = "NoteAdapter";
+        private static final String LOGGING_TAG = "NoteAdapter";
 
         NoteAdapter() {
             super(NoteEntity.$TYPE);
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(NoteEntity item, BindingHolder<NoteItemBinding> holder,
                                      int position) {
-            Log.v(TAG, "Binding note item to view holder");
+            Log.v(LOGGING_TAG, "Binding note item to view holder");
             holder.binding.setNote(item);
 
             // TODO: determine if this is necessary.
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public BindingHolder<NoteItemBinding> onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.v(TAG, "Creating a note view holder");
+            Log.v(LOGGING_TAG, "Creating a note view holder");
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             NoteItemBinding binding = NoteItemBinding.inflate(inflater);
             binding.getRoot().setTag(binding);
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "Handling note view handler click");
+            Log.d(LOGGING_TAG, "Handling note view handler click");
             NoteItemBinding binding = (NoteItemBinding) v.getTag();
             if (binding != null) {
                 Intent intent = new Intent(MainActivity.this, EditNoteActivity.class);
