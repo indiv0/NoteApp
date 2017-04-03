@@ -55,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
         // Load the root view used by the activity.
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
+        // TODO: replace this pattern with unit tests instead.
+        if (BuildConfig.DEBUG && recyclerView == null) {
+            throw new AssertionError();
+        }
+
         // Load the data store instance from the global `Application` context.
         data = ((NoteApplication) getApplication()).getData();
 
