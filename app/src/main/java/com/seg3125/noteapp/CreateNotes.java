@@ -45,6 +45,7 @@ class CreateNotes implements Callable<Observable<Iterable<Note>>> {
             String content = contents[i];
             note.setTitle(title);
             note.setContent(content);
+            note.setLock(false);
             notes.add(note);
         }
 

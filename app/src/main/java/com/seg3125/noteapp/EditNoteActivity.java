@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.net.Uri;
@@ -28,7 +29,10 @@ import io.reactivex.functions.Consumer;
 import io.requery.Persistable;
 import io.requery.reactivex.ReactiveEntityStore;
 
-public class EditNoteActivity extends AppCompatActivity {
+public class EditNoteActivity extends AppCompatActivity  {
+
+    // Password Dialog ID
+    private static final int MY_PASSWORD_DIALOG_ID = 5;
 
     // Bluetooth Sharing
     private static final int DISCOVER_DURATION = 300;
@@ -39,6 +43,7 @@ public class EditNoteActivity extends AppCompatActivity {
 
     private ReactiveEntityStore<Persistable> data;
     private NoteEntity note;
+    private NoteEntity dummynote;
     private ActivityEditNoteBinding binding;
 
     @Override
@@ -77,8 +82,15 @@ public class EditNoteActivity extends AppCompatActivity {
                     .subscribe(new Consumer<NoteEntity>() {
                         @Override
                         public void accept(@NonNull NoteEntity note) {
-                            EditNoteActivity.this.note = note;
-                            binding.setNote(note);
+                            if(note.getLock() == true) {
+                                EditNoteActivity.this.note = note;
+                                binding.setNote(note);
+                                enterPasswordDialog();
+                            }
+                            else {
+                                EditNoteActivity.this.note = note;
+                                binding.setNote(note);
+                            }
                         }
                     });
         }
@@ -151,7 +163,19 @@ public class EditNoteActivity extends AppCompatActivity {
     }
 
     public void lockNote() {
+        showPasswordDialog();
+    }
 
+    private void showPasswordDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        PasswordDialog showPasswordDialog = new PasswordDialog();
+        showPasswordDialog.show(fm, "password_dialog");
+    }
+
+    private void enterPasswordDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        EnterPassword enterPasswordDialog = new EnterPassword();
+        enterPasswordDialog.show(fm, "enter_password");
     }
 
     public void deleteNote() {
@@ -194,7 +218,6 @@ public class EditNoteActivity extends AppCompatActivity {
             File dir = new File(sdcard.getAbsolutePath() + "/NoteApp/");
             // create this directory if not already created
             dir.mkdir();
-            Toast.makeText(this, "Dir", Toast.LENGTH_LONG).show();
             // create the file in which we will write the contents
             FileOutputStream os;
 
@@ -203,7 +226,6 @@ public class EditNoteActivity extends AppCompatActivity {
                 os = new FileOutputStream(file);
                 os.write(string.getBytes());
                 os.close();
-                Toast.makeText(this, "Note", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -242,6 +264,24 @@ public class EditNoteActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Bluetooth cancelled", Toast.LENGTH_LONG).show();
         }
+    }
 
+    public void savePassword(String value) {
+        if(value != null && !value.isEmpty()) {
+            note.setLockKey(value);
+            note.setLock(true);
+        }
+        else {
+            note.setLock(false);
+        }
+    }
+
+    public void checkPassword(String value) {
+        if(value.equals(note.getLockKey()))
+            Toast.makeText(this, "Correct Password", Toast.LENGTH_LONG).show();
+        else {
+            Toast.makeText(this, "Incorrect Password", Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 }
