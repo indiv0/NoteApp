@@ -21,4 +21,12 @@ public interface Note extends Observable, Parcelable, Persistable {
     @Bindable
     String getContent();
     void setContent(String content);
+
+    @Bindable
+    boolean getLock();
+    void setLock(boolean Lock);
+
+    @Bindable
+    String getLockKey();
+    void setLockKey(String Key);
 }

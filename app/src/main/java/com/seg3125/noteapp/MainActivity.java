@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -55,10 +54,6 @@ public class MainActivity extends AppCompatActivity {
         // Load the root view used by the activity.
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
-        // This is an optimization to improve permission, as we know that the changes in content do
-        // not change the layout size of the recycler view.
-        recyclerView.setHasFixedSize(true);
-
         // Load the data store instance from the global `Application` context.
         data = ((NoteApplication) getApplication()).getData();
 
@@ -71,15 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Attach the adapter to the recycler view, and configure the layout manager for the view.
         recyclerView.setAdapter(adapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        // Attach a `DividerItemDecoration` to the recycler view, to provide a divider between
-        // items.
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         data.count(Note.class).get().single()
                 .subscribe(new Consumer<Integer>() {
@@ -170,12 +157,6 @@ public class MainActivity extends AppCompatActivity {
             return data.select(NoteEntity.class).orderBy(NoteEntity.TITLE.lower()).get();
         }
 
-        /**
-         * Replaces the contents of a view (invoked by the layout manager).
-         * @param item the new item to be placed into the view.
-         * @param holder the holder of the binding for the view.
-         * @param position the position of the item in the `RecyclerView`.
-         */
         @Override
         public void onBindViewHolder(NoteEntity item, BindingHolder<NoteItemBinding> holder,
                                      int position) {
