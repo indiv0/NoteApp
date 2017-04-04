@@ -15,7 +15,8 @@ import io.requery.sql.TableCreationMode;
 
 public class NoteApplication extends Application {
 
-    private static final int DB_Version = 3;
+    // The current version of the database schema.
+    private static final int DATABASE_SCHEMA_VERSION = 3;
 
     // The data store, which holds all entities used by this application.
     private ReactiveEntityStore<Persistable> dataStore;
@@ -40,7 +41,7 @@ public class NoteApplication extends Application {
     ReactiveEntityStore<Persistable> getData() {
         if (dataStore == null) {
             // In the future, override onUpgrade to handle migrating to a new version.
-            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, DB_Version);
+            DatabaseSource source = new DatabaseSource(this, Models.DEFAULT, DATABASE_SCHEMA_VERSION);
             if (BuildConfig.DEBUG) {
                 // In development mode, set the table creation mode to recreate the tables on every
                 // upgrade.
